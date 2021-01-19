@@ -1,0 +1,20 @@
+name: PR BZ docker Image publish
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile-pr-action --tag quay.io/konveyor/pr-bz-github-action
+    - name: Log into Registry
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+    - name: Push image
+      run: docker push quay.io/konveyor/pr-bz-github-action
