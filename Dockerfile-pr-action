@@ -1,0 +1,37 @@
+# Specify the version of Go to use
+FROM golang:1.13 AS builder
+
+# Turn on Go modules support and disable CGO
+ENV GO111MODULE=on CGO_ENABLED=0
+
+WORKDIR /tmp/build-dir
+
+# Copy all the files from the host into the container
+COPY . .
+
+# Compile the pr_bz_action - the added flags instruct Go to produce a
+# standalone binary
+RUN go build\
+  -ldflags "-s -w -extldflags '-static'" \
+  -o /bin/pr_bz_action\
+  /tmp/build-dir/cmd/pr-action/main.go
+
+# Strip any symbols - this is not a library
+RUN strip /bin/pr_bz_action
+
+# Step 2
+
+# Use the most basic and empty container - this container has no
+# runtime, files, shell, libraries, etc.
+FROM scratch
+
+# Copy over SSL certificates from the first step - this is required
+# if our code makes any outbound SSL connections because it contains
+# the root CA bundle.
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+# Copy over the compiled action from the first step
+COPY --from=builder /bin/pr_bz_action /bin/pr_bz_action
+
+# Specify the container's entrypoint as the action
+ENTRYPOINT ["/bin/pr_bz_action"]
