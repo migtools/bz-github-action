@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-  build:
+  build-pr-bz:
 
     runs-on: ubuntu-latest
 
@@ -18,3 +18,16 @@ jobs:
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin quay.io
     - name: Push image
       run: docker push quay.io/konveyor/pr-bz-github-action
+  
+  build-merge-bz:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile-merge-action --tag quay.io/konveyor/pr-merge-github-action
+    - name: Log into Registry
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin quay.io
+    - name: Push image
+      run: docker push quay.io/konveyor/pr-merge-github-action
