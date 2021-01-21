@@ -117,6 +117,15 @@ func main() {
 		}
 		os.Exit(1)
 	}
+	if complete {
+		body := fmt.Sprintf("valid [bug %v](https://bugzilla.redhat.com/show_bug.cgi?id=%v)", bugID, bugID)
+		_, _, err = ghClient.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
+			Body: &body,
+		})
+		if err != nil {
+			fmt.Printf("gh Client error: %v", err)
+		}
+	}
 	// Move BZ to POST if not in post
 	if bug.Status != "POST" {
 		err := bzClient.UpdateBug(bugID, bugzilla.BugUpdate{
@@ -132,13 +141,6 @@ func main() {
 			if err != nil {
 				fmt.Printf("gh Client error: %v", err)
 			}
-		}
-		body := fmt.Sprintf("valid [bug %v](https://bugzilla.redhat.com/show_bug.cgi?id=%v)", bugID, bugID)
-		_, _, err = ghClient.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
-			Body: &body,
-		})
-		if err != nil {
-			fmt.Printf("gh Client error: %v", err)
 		}
 	}
 }
