@@ -108,9 +108,10 @@ func main() {
 		fmt.Printf("%#v", err)
 		fmt.Printf("unable to add PR to BZ")
 		body := fmt.Sprintf("Bug was not moved to post but was valid. something went wrong")
-		_, _, err := ghClient.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
+		_, resp, err := ghClient.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 			Body: &body,
 		})
+		fmt.Printf("\n%#v", resp)
 		if err != nil {
 			fmt.Printf("gh Client error: %v", err)
 		}
