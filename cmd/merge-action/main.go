@@ -82,6 +82,14 @@ func main() {
 
 	if !inTargetRelease(branchToTargetRelease[prBaseBranch], bug.TargetRelease) {
 		fmt.Printf("Merging fix for the branch: %v which is not associated with the target release: %v", prBaseBranch, bug.TargetRelease)
+		body := fmt.Sprintf("Unable to find the base branch: %s in target releases for bug: %s", branchToTargetRelease[prBaseBranch], strings.Join(bug.TargetRelease, ", "))
+		_, _, err := ghClient.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
+			Body: &body,
+		})
+		if err != nil {
+			fmt.Printf("gh Client error: %v", err)
+			os.Exit(1)
+		}
 		os.Exit(0)
 	}
 
