@@ -3,7 +3,7 @@ module github.com/konveyor/bz-github-action
 go 1.14
 
 require (
-	github.com/google/go-github/v33 v33.0.0 // indirect
+	github.com/google/go-github/v33 v33.0.0
 	github.com/sethvargo/go-githubactions v0.3.0
 	github.com/sirupsen/logrus v1.7.0
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a

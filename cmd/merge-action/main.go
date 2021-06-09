@@ -25,7 +25,7 @@ func main() {
 
 	branchToTargetRelease, err := getBranchToTargetRelease(githubactions.GetInput("branch to release"))
 	if err != nil {
-		fmt.Printf("\nunable to complete action: %v", err)
+		fmt.Printf("\nUnable to complete action: %v", err)
 	}
 
 	product = githubactions.GetInput("bz product")
@@ -58,7 +58,7 @@ func main() {
 
 	if bugID == 1 {
 		fmt.Printf("\nUnable to get BZ id for PR")
-		body := fmt.Sprint("Unable to find bug for PR, valid PR titles shoudl look like Bug xxxxxxx: <message>")
+		body := fmt.Sprint("Unable to find bug for PR. Valid PR titles should look like Bug xxxxxxx: <message>")
 		ghClient.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 			Body: &body,
 		})
@@ -69,8 +69,8 @@ func main() {
 	if err != nil {
 		// GH add comment to this effect
 		fmt.Printf("%#v", err)
-		fmt.Printf("\nunable to retrieve bug")
-		body := fmt.Sprintf("Unable to find bug with id: %v. Please make sure the bug if created and valid.", bugID)
+		fmt.Printf("\nUnable to retrieve bug")
+		body := fmt.Sprintf("Unable to find bug with id: %v. Please make sure the bug is created and valid.", bugID)
 		_, _, err := ghClient.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 			Body: &body,
 		})
@@ -95,7 +95,7 @@ func main() {
 	prs, err := bzClient.GetExternalBugPRsOnBug(bugID)
 	if err != nil {
 		//TODO: GH comment saying this failed
-		fmt.Printf("unable to add PR to BZ")
+		fmt.Printf("Unable to add PR to BZ")
 		os.Exit(1)
 	}
 	// get PR ref id
@@ -110,7 +110,7 @@ func main() {
 			// If closed (either merged or not) it should still no longer factor.
 			pull, _, err := ghClient.PullRequests.Get(context.TODO(), pr.Org, pr.Repo, pr.Num)
 			if err != nil {
-				fmt.Printf("\nunable to query github for the pr: %v/%v/pull/%v", pr.Org, pr.Repo, pr.Num)
+				fmt.Printf("\nUnable to query github for the pr: %v/%v/pull/%v", pr.Org, pr.Repo, pr.Num)
 				os.Exit(1)
 			}
 			if pull.Merged != nil && *pull.Merged != true {
@@ -126,17 +126,17 @@ func main() {
 			Status: "MODIFIED",
 		})
 		if err != nil {
-			fmt.Printf("\nunable to move bug to modified")
+			fmt.Printf("\nUnable to move bug to modified")
 			os.Exit(1)
 		}
 		fmt.Printf("\nSuccessfully moved BZ to modified")
 
 	} else if !foundAttached {
 		// Error out and add to PR that this was not attached to BZ
-		fmt.Printf("\nunable to find bz that has this PR attached. not doing anything in this case")
+		fmt.Printf("\nUnable to find bz that has this PR attached. not doing anything in this case")
 		os.Exit(1)
 	} else {
-		fmt.Printf("\nnot moving to modified because not the last PR attached to the BZ")
+		fmt.Printf("\nNot moving to modified because not the last PR attached to the BZ")
 	}
 }
 
@@ -157,25 +157,25 @@ func getBugID(prTitle string) int {
 	if bug != "" {
 		bugParts := strings.Split(bug, " ")
 		if len(bugParts) < 2 {
-			fmt.Printf("\nunable to find bug id in bug substring: %v, must look like Bug xxxxxxxx:", bug)
+			fmt.Printf("\nUnable to find bug id in bug substring: %v, must look like Bug xxxxxxxx:", bug)
 			return 1
 		}
 		id, err := strconv.Atoi(strings.Replace(bugParts[1], ":", "", -1))
 		if err != nil {
-			fmt.Printf("\nunable to convert bug id: %v to an valid value", bugParts[1])
+			fmt.Printf("\nUnable to convert bug id: %v to an valid value", bugParts[1])
 			return 1
 		}
 		return id
 	}
 
-	fmt.Printf("\nunable to find bug id: %v", bug)
+	fmt.Printf("\nUnable to find bug id: %v", bug)
 	return 0
 }
 
 // validBug will determine and alert the user that the bz is not valid
 func validBug(bug *bugzilla.Bug, gh *github.Client, org, repo string, prNumber int) bool {
 	if strings.ToUpper(bug.Product) != strings.ToUpper(product) {
-		fmt.Printf("invalid product: %v for %v", bug.Product, product)
+		fmt.Printf("Invalid product: %v for %v", bug.Product, product)
 		body := fmt.Sprintf("Bug is not for a valid product, double check the bug is correct")
 		_, _, err := gh.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 			Body: &body,
@@ -215,7 +215,7 @@ func getBranchToTargetRelease(branchToTargetRelease string) (map[string]string, 
 	for _, part := range parts {
 		parts := strings.Split(part, ":")
 		if len(parts) < 2 {
-			return branchToTargetReleaseMap, fmt.Errorf("unable to make branch and release mapping for: %v", part)
+			return branchToTargetReleaseMap, fmt.Errorf("Unable to make branch and release mapping for: %v", part)
 		}
 		branchToTargetReleaseMap[strings.Replace(parts[0], ":", "", -1)] = strings.Replace(parts[1], ":", "", -1)
 	}
