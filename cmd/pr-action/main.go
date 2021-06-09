@@ -67,7 +67,7 @@ func main() {
 	if err != nil {
 		// GH add comment to this effect
 		fmt.Printf("%#v", err)
-		fmt.Printf("\nunable to retrieve bug")
+		fmt.Printf("\nUnable to retrieve bug")
 		body := fmt.Sprintf("Unable to find bug with id: %v. Please make sure the bug if created and valid.", bugID)
 		_, _, err := ghClient.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 			Body: &body,
@@ -88,7 +88,7 @@ func main() {
 	prs, err := bzClient.GetExternalBugPRsOnBug(bugID)
 	if err != nil {
 		//TODO: GH comment saying this failed
-		fmt.Printf("unable to add PR to BZ")
+		fmt.Printf("Unable to add PR to BZ")
 		os.Exit(1)
 	}
 	// get PR ref id
@@ -106,8 +106,8 @@ func main() {
 	if err != nil || !complete {
 		//TODO: GH comment saying this failed
 		fmt.Printf("%#v", err)
-		fmt.Printf("unable to add PR to BZ")
-		body := fmt.Sprintf("Bug was not moved to post but was valid. something went wrong")
+		fmt.Printf("Unable to add PR to BZ")
+		body := fmt.Sprintf("Bug was not moved to POST but was valid. Something went wrong")
 		_, resp, err := ghClient.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 			Body: &body,
 		})
@@ -118,7 +118,7 @@ func main() {
 		os.Exit(1)
 	}
 	if complete {
-		body := fmt.Sprintf("valid [bug %v](https://bugzilla.redhat.com/show_bug.cgi?id=%v)", bugID, bugID)
+		body := fmt.Sprintf("Valid [bug %v](https://bugzilla.redhat.com/show_bug.cgi?id=%v)", bugID, bugID)
 		_, _, err = ghClient.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 			Body: &body,
 		})
@@ -132,9 +132,9 @@ func main() {
 			Status: "POST",
 		})
 		if err != nil {
-			fmt.Printf("\nunable to move bug to post")
+			fmt.Printf("\nUnable to move bug to POST")
 			fmt.Printf("%v", err)
-			body := fmt.Sprintf("Bug was not moved to post but was valid. something went wrong")
+			body := fmt.Sprintf("Bug was not moved to POST but was valid. Something went wrong")
 			_, _, err := ghClient.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 				Body: &body,
 			})
@@ -162,25 +162,25 @@ func getBugID(prTitle string) int {
 	if bug != "" {
 		bugParts := strings.Split(bug, " ")
 		if len(bugParts) < 2 {
-			fmt.Printf("\nunable to find bug id in bug substring: %v, must look like Bug xxxxxxxx:", bug)
+			fmt.Printf("\nUnable to find bug id in bug substring: %v, must look like Bug xxxxxxxx:", bug)
 			return 1
 		}
 		id, err := strconv.Atoi(strings.Replace(bugParts[1], ":", "", -1))
 		if err != nil {
-			fmt.Printf("\nunable to convert bug id: %v to an valid value", bugParts[1])
+			fmt.Printf("\nUnable to convert bug id: %v to an valid value", bugParts[1])
 			return 1
 		}
 		return id
 	}
 
-	fmt.Printf("\nunable to find bug id: %v", bug)
+	fmt.Printf("\nUnable to find bug id: %v", bug)
 	return 0
 }
 
 // validBug will determine and alert the user that the bz is not valid
 func validBug(bug *bugzilla.Bug, gh *github.Client, org, repo string, prNumber int) bool {
 	if strings.ToUpper(bug.Product) != strings.ToUpper(product) {
-		fmt.Printf("invalid product: %v for %v", bug.Product, product)
+		fmt.Printf("Invalid product: %v for %v", bug.Product, product)
 		body := fmt.Sprintf("Bug is not for a valid product, double check the bug is correct")
 		_, _, err := gh.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 			Body: &body,
@@ -195,7 +195,7 @@ func validBug(bug *bugzilla.Bug, gh *github.Client, org, repo string, prNumber i
 		return true
 	default:
 		fmt.Printf("Invalid bug state: %v", bug.Status)
-		body := fmt.Sprintf("Bug is not invalid because it is in: %v and should be one of new, assigned or post", bug.Status)
+		body := fmt.Sprintf("Bug is not invalid because it is in: %v and should be one of NEW, ASSIGNED, or POST", bug.Status)
 		_, _, err := gh.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 			Body: &body,
 		})
