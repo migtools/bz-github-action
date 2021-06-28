@@ -179,9 +179,9 @@ func getBugID(prTitle string) int {
 
 // validBug will determine and alert the user that the bz is not valid
 func validBug(bug *bugzilla.Bug, gh *github.Client, org, repo string, prNumber int) bool {
-	if strings.ToUpper(bug.Product) != strings.ToUpper(product) {
+	if strings.EqualFold(bug.Product, product) {
 		fmt.Printf("Invalid product: %v for %v", bug.Product, product)
-		body := fmt.Sprintf("Bug is not for a valid product, double check the bug is correct")
+		body := "Bug is not for a valid product, double check the bug is correct"
 		_, _, err := gh.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 			Body: &body,
 		})
@@ -190,6 +190,21 @@ func validBug(bug *bugzilla.Bug, gh *github.Client, org, repo string, prNumber i
 		}
 		return false
 	}
+
+	// If the target release is not set.
+	for _, tr := range bug.TargetRelease {
+		if tr == "---" {
+			body := fmt.Sprintf("Bug [%v](http://bugzilla.redhat.com/show_bug.cgi?id=%v) does not have a target release set", bug.ID, bug.ID)
+			_, _, err := gh.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
+				Body: &body,
+			})
+			if err != nil {
+				fmt.Printf("gh Client error: %v", err)
+			}
+			return false
+		}
+	}
+
 	switch strings.ToUpper(bug.Status) {
 	case "NEW", "ASSIGNED", "POST":
 		return true
@@ -204,6 +219,7 @@ func validBug(bug *bugzilla.Bug, gh *github.Client, org, repo string, prNumber i
 		}
 		return false
 	}
+
 }
 
 func splitOrgRepo(orgRepo string) (org, repo string) {
