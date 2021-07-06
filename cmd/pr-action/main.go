@@ -179,8 +179,7 @@ func getBugID(prTitle string) int {
 
 // validBug will determine and alert the user that the bz is not valid
 func validBug(bug *bugzilla.Bug, gh *github.Client, org, repo string, prNumber int) bool {
-	// if strings.EqualFold(bug.Product, product) {
-	if strings.ToUpper(bug.Product) != strings.ToUpper(product) {
+	if !strings.EqualFold(bug.Product, product) {
 		fmt.Printf("Invalid product: %v for %v", bug.Product, product)
 		body := "Bug is not for a valid product, double check the bug is correct"
 		_, _, err := gh.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
