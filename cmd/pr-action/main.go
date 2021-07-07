@@ -210,7 +210,7 @@ func validBug(bug *bugzilla.Bug, gh *github.Client, org, repo string, prNumber i
 		return true
 	default:
 		fmt.Printf("Invalid bug state: %v", bug.Status)
-		body := fmt.Sprintf("Bug is not invalid because it is in: %v and should be one of NEW, ASSIGNED, or POST", bug.Status)
+		body := fmt.Sprintf("Bug is not valid because it is in %v and should be one of NEW, ASSIGNED, or POST", bug.Status)
 		_, _, err := gh.Issues.CreateComment(context.TODO(), org, repo, prNumber, &github.IssueComment{
 			Body: &body,
 		})
